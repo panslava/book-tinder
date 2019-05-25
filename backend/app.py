@@ -26,8 +26,8 @@ def Fail(code, message):
 @app.route('/request_user')
 def requestUserHandle():
     user = None
-    if request.cookies.get('auth', None):
-        user = ResolveUserWithHash(request.cookies['auth'])
+    if request.headers.get('Auth', None):
+        user = ResolveUserWithHash(request.headers['Auth'])
     elif request.args.get('hash', None):
         user = ResolveUserWithHash(request.args['hash'])
     elif request.args.get('login', None) and request.args.get('password', None):
@@ -36,11 +36,13 @@ def requestUserHandle():
         return json.dumps(Fail('user_not_found', 'No such user'))
     else:
         response = make_response(user.Dump())
-        response.set_cookie('auth', str(user.hash))
+        response.set_cookie('Auth', str(user.hash))
         return response
 
-def getUserByCookie(cookies):
-	auth = cookies.get('auth', None)
+def getUserByHeaders(headers, cookies):
+	auth = headers.get('Auth', None)
+	if not auth:
+		auth = cookies.get('auth', None)
 	if not auth:
 		return None
 	user = ResolveUserWithHash(auth)
@@ -48,7 +50,7 @@ def getUserByCookie(cookies):
 
 @app.route('/cards')
 def cardsHandle():
-	user = getUserByCookie(request.cookies)
+	user = getUserByHeaders(request.headers, request.cookies)
 	if not user:
 		return json.dumps(Fail('unautorized', 'User is not authorized'))
 	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner_id != {user.uid}")
@@ -60,7 +62,7 @@ def cardsHandle():
 
 @app.route('/my_books')
 def myBooksHandle():
-	user = getUserByCookie(request.cookies)
+	user = getUserByHeaders(request.headers, request.cookies)
 	if not user:
 		return json.dumps(Fail('unautorized', 'User is not authorized'))
 	db.cursor.execute(f"SELECT * FROM books WHERE owner_id = {user.uid}")
@@ -73,7 +75,7 @@ def myBooksHandle():
 
 @app.route('/matches')
 def matchesHandle():
-	user = getUserByCookie(request.cookies)
+	user = getUserByHeaders(request.headers, request.cookies)
 	if not user:
 		return json.dumps(Fail('unautorized', 'User is not authorized'))
 	db.cursor.execute(f"SELECT * FROM likes WHERE B = {user.uid}")
