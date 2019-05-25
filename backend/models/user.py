@@ -42,12 +42,13 @@ class User:
 		res['displayName'] = self.displayName
 		res['gender'] = self.gender
 		res['birthday'] = str(self.birthday)
-		res['avatar'] = "/static/avatar/" + self.avatarName
+		res['avatar'] = "/static/avatars/" + self.avatarName
 		res['age'] = self.get_age(self.birthday)
+		res['hash'] = self.hash
 		return res
 	
 	def Dump(self):
-		return json.dumps(self.Serialize()).encode('utf-8')
+		return json.dumps(self.Serialize(), ensure_ascii=False)
 
 def CreateUserFromRow(row):
     id = row.get('owner_id', None)

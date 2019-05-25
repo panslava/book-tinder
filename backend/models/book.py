@@ -1,5 +1,7 @@
 from auth import ResolveUserWithId
 
+import db
+
 import json
 from uuid import uuid4
 
@@ -30,13 +32,21 @@ class Book:
 		return res
 
 	def Dump(self):
-		return json.dumps(self.Serialize())
+		return json.dumps(self.Serialize(), ensure_ascii=False)
+
+	def __hash__(self):
+		return hash(id)
 
 
-def CreateBookFromRow(row, withOwner = True):
+def CreateBookFromRow(row, withOwner = True) -> Book:
 	return Book(id=row['id'],
 		    title=row['title'],
 		    author=row['author'],
 		    description=row['description'],
    		    owner=row['owner_id'] if withOwner else 0,
 		    pic=row['photo'])
+
+def GetBookById(id) -> Book:
+	db.cursor.execute(f'SELECT * FROM books WHERE id = {id}')
+	for row in db.cursor:
+		return CreateBookFromRow(row)
