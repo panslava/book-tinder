@@ -9,13 +9,17 @@ export default class Cards extends React.Component {
     cards: []
   }
 
-  componentDidMount() {
-    getCard(this, { count: 15 })
+  // componentWillMount() {
+  // }
+
+  async componentDidMount() {
+    getCard(this)
   }
 
   render() {
     return (
       <div>
+        {/* JSON.stringify(this.state.cards) */}
         <div className="tinder">
           <div className="tinder--status">
             <i className="fa fa-remove" />
@@ -23,9 +27,17 @@ export default class Cards extends React.Component {
           </div>
 
           <div className="tinder--cards">
-            {this.state.cards.map((res, i) => (
-              <Card name={res.name} key={i} />
-            ))}
+            {this.state.cards.map((res, i) => {
+              console.log(1)
+              return (
+                <Card
+                  title={res.title}
+                  author={res.author}
+                  description={res.description}
+                  key={i}
+                />
+              )
+            })}
           </div>
 
           <div className="tinder--buttons">
