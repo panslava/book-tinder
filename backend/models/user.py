@@ -42,7 +42,7 @@ class User:
 		res['displayName'] = self.displayName
 		res['gender'] = self.gender
 		res['birthday'] = str(self.birthday)
-		res['avatar'] = self.avatarName
+		res['avatar'] = "/static/avatar/" + self.avatarName
 		res['age'] = self.get_age(self.birthday)
 		return res
 	
@@ -50,7 +50,10 @@ class User:
 		return json.dumps(self.Serialize()).encode('utf-8')
 
 def CreateUserFromRow(row):
-    return User(id=row['id'],
+    id = row.get('owner_id', None)
+    if not id:
+          id = row['id']
+    return User(id=id,
                 hash=row['hash'],
                 avatar=row['avatar'],
                 nickname=row['login'],

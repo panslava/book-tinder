@@ -11,6 +11,7 @@ import db
 import json
 
 from models.user import User, CreateUserFromRow
+from models.book import Book, CreateBookFromRow
 from auth import ResolveUserWithHash, ResolveUserWithLogPass
 
 def Fail(code, message):
@@ -46,14 +47,10 @@ def cardsHandle():
 	if not auth:
 		return json.dumps(Fail("unauthorized", "User is not authorized"))
 	user = ResolveUserWithHash(auth)
-	cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner != {user.id}")
-	res = {'cards': []}
-	for row in cursor:
-		print(row)
-		card = {}
-		card['owner'] = CreateUserFromRow(row).Serialize()
-		card['book'] = CreateBookFromRow(row).Serialize()
-		res['cards'].append(card)
+	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner_id != {user.uid}")
+	res = {'books': []}
+	for row in db.cursor:
+		res['books'].append(CreateBookFromRow(row).Serialize())
 	return json.dumps(res)
 
 @app.route('/')
