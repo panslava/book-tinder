@@ -11,7 +11,7 @@ export default class Card extends React.Component {
         <h3>{this.props.title}</h3>
         <div>
           <div className="inline">
-            <i classNamegit="fas fa-feather-alt" />
+            <i className="fas fa-feather-alt" />
             {this.props.author}
           </div>
         </div>
