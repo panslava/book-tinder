@@ -53,7 +53,12 @@ def cardsHandle():
 	user = getUserByHeaders(request.headers, request.cookies)
 	if not user:
 		return json.dumps(Fail('unautorized', 'User is not authorized'))
-	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner_id != {user.uid}")
+	considerGender = request.args.get('considerGender', "yes")
+	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id\
+						LEFT JOIN likes on likes.A = {user.uid} and books.id = likes.book\
+	                    			WHERE owner_id != {user.uid}\
+						AND likes.like_id IS NULL"
+			   + (f" AND gender != '{user.gender}'" if considerGender == "yes" else ""))
 	res = {'books': []}
 	for row in db.cursor:
 		res['books'].append(CreateBookFromRow(row, False).Serialize())
@@ -106,6 +111,21 @@ def matchesHandle():
 		match['books']['iLiked'] = [book.Serialize() for book in booksILiked]
 		res['matches'].append(match)
 	return json.dumps(res, ensure_ascii=False)
+
+@app.route('/like')
+def likeHandle():
+	user = getUserByHeaders(request.headers, request.cookies)
+	if not user:
+		return json.dumps(Fail('unauthorized', 'User is not authorized'))
+	book = request.args['book']
+	uid = None
+	db.cursor.execute(f"SELECT * FROM books WHERE id = {book}")
+	for row in db.cursor:
+		uid = row['owner_id']
+	if not uid:
+		return json.dumps(Fail('book_not_found', 'Book is not found'))
+	db.cursor.execute(f"INSERT INTO likes VALUES (0, {user.uid}, {uid}, {book}); COMMIT")
+	return ''
 
 @app.route('/')
 def hello_world():
