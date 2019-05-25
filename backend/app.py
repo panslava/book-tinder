@@ -107,6 +107,21 @@ def matchesHandle():
 		res['matches'].append(match)
 	return json.dumps(res, ensure_ascii=False)
 
+@app.route('/like')
+def likeHandle():
+	user = getUserByHeaders(request.headers, request.cookies)
+	if not user:
+		return json.dumps(Fail('unauthorized', 'User is not authorized'))
+	book = request.args['book']
+	uid = None
+	db.cursor.execute(f"SELECT * FROM books WHERE id = {book}")
+	for row in db.cursor:
+		uid = row['owner_id']
+	if not uid:
+		return json.dumps(Fail('book_not_found', 'Book is not found'))
+	db.cursor.execute(f"INSERT INTO likes VALUES (0, {user.uid}, {uid}, {book}); COMMIT")
+	return ''
+
 @app.route('/')
 def hello_world():
     user = User()
