@@ -24,7 +24,8 @@ class Book:
 		res['title'] = self.title
 		res['author'] = self.author
 		res['description'] = self.description
-		res['owner'] = ResolveUserWithId(self.owner).Serialize()
+		if self.owner:
+			res['owner'] = ResolveUserWithId(self.owner).Serialize()
 		res['pic'] = '/static/books/' + self.pic
 		return res
 
@@ -32,10 +33,10 @@ class Book:
 		return json.dumps(self.Serialize())
 
 
-def CreateBookFromRow(row):
+def CreateBookFromRow(row, withOwner = True):
 	return Book(id=row['id'],
 		    title=row['title'],
 		    author=row['author'],
 		    description=row['description'],
-   		    owner=row['owner_id'],
+   		    owner=row['owner_id'] if withOwner else 0,
 		    pic=row['photo'])

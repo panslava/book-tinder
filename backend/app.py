@@ -50,7 +50,21 @@ def cardsHandle():
 	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner_id != {user.uid}")
 	res = {'books': []}
 	for row in db.cursor:
-		res['books'].append(CreateBookFromRow(row).Serialize())
+		res['books'].append(CreateBookFromRow(row, False).Serialize())
+	return json.dumps(res)
+
+@app.route('/my_books')
+def myBooksHandle():
+	auth = request.cookies.get('auth', None)
+	if not auth:
+		return json.dumps(Fail('unautorized', 'User is not authorized'))
+	user = ResolveUserWithHash(auth)
+	db.cursor.execute(f"SELECT * FROM books WHERE owner_id = {user.uid}")
+	res = {}
+	res['me'] = user.Serialize()
+	res['books'] = []
+	for row in db.cursor:
+		res['books'].append(CreateBookFromRow(row, False).Serialize())
 	return json.dumps(res)
 
 @app.route('/')
