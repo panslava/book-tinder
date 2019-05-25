@@ -10,8 +10,8 @@ import db
 
 import json
 
-from models.user import User, CreateUser
-from auth import ResolveUserWithHash, ResolveUserWithLogPass, RegisterUser
+from models.user import User, CreateUserFromRow
+from auth import ResolveUserWithHash, ResolveUserWithLogPass
 
 def Fail(code, message):
     return {'error': {
@@ -49,6 +49,7 @@ def cardsHandle():
 	cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner != {user.id}")
 	res = {'cards': []}
 	for row in cursor:
+		print(row)
 		card = {}
 		card['owner'] = CreateUserFromRow(row).Serialize()
 		card['book'] = CreateBookFromRow(row).Serialize()
@@ -62,4 +63,4 @@ def hello_world():
 
 if __name__ == '__main__':
 
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

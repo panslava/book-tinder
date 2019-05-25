@@ -1,8 +1,8 @@
 import MySQLdb
 
-conn = MySQLdb.connect(host="194.67.202.99",
+conn = MySQLdb.connect(host="localhost",
                        user="admin_admin",
-                       passwd="lA5733vyKI",
+                       passwd="2xIKC6xewN",
                        db="admin_gachihack")
 
 cursor = conn.cursor(MySQLdb.cursors.DictCursor)
