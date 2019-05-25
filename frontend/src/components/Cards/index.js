@@ -28,12 +28,12 @@ export default class Cards extends React.Component {
 
           <div className="tinder--cards">
             {this.state.cards.map((res, i) => {
-              console.log(1)
               return (
                 <Card
                   title={res.title}
                   author={res.author}
                   description={res.description}
+                  pic={res.pic}
                   key={i}
                 />
               )

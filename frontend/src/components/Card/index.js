@@ -1,13 +1,13 @@
 import React from 'react'
 
-import './style.css'
 import { server } from '../../params'
+import './style.css'
 
 export default class Card extends React.Component {
   render() {
     return (
       <div className="tinder--card">
-        <img src={server.ip + '/' + this.props.link} alt="??????????? ?????" />
+        <img src={server.host + this.props.pic} alt="Book" />
         <h3>{this.props.title}</h3>
         <div>
           <div className="inline">

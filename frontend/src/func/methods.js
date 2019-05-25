@@ -4,13 +4,9 @@ import { getCards } from './api'
 
 export async function getCard(that, data = {}) {
   const handlerSuccess = (other, res) => {
-    console.log(other.state.cards)
     if (!other.state.cards || !other.state.cards.length) {
-      console.log(1)
       other.setState({ cards: res['books'] })
     } else other.state.cards = res['books']
-
-    console.log(other.state.cards)
 
     let tinderContainer = document.querySelector('.tinder')
     let allCards = document.querySelectorAll('.tinder--card')
@@ -133,6 +129,5 @@ export async function getCard(that, data = {}) {
   }
 
   let res = await getCards()
-  console.log(res)
   handlerSuccess(that, res.data)
 }
