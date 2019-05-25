@@ -11,13 +11,13 @@ export default class Card extends React.Component {
         <h3>{this.props.title}</h3>
         <div>
           <div className="inline">
-            <i className="fas fa-map-marker-alt" />
+            <i classNamegit="fas fa-feather-alt" />
             {this.props.author}
           </div>
         </div>
         <div>
           <div className="inline">
-            <i className="fas fa-calendar-week" />
+            <i className="fas fa-file-alt" />
             {this.props.description}
           </div>
         </div>
