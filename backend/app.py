@@ -53,7 +53,12 @@ def cardsHandle():
 	user = getUserByHeaders(request.headers, request.cookies)
 	if not user:
 		return json.dumps(Fail('unautorized', 'User is not authorized'))
-	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner_id != {user.uid}")
+	considerGender = request.args.get('considerGender', "yes")
+	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id\
+						LEFT JOIN likes on likes.A = {user.uid} and books.id = likes.book\
+	                    			WHERE owner_id != {user.uid}\
+						AND likes.like_id IS NULL"
+			   + (f" AND gender != '{user.gender}'" if considerGender == "yes" else ""))
 	res = {'books': []}
 	for row in db.cursor:
 		res['books'].append(CreateBookFromRow(row, False).Serialize())
