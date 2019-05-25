@@ -3,15 +3,19 @@ from flask import request
 from flask import make_response
 from flask import redirect
 from flask import url_for
+from flask_cors import CORS
 
 app = Flask(__name__)
+cors = CORS(app)
 
 import db
 
 import json
+import random
 
 from models.user import User, CreateUserFromRow
-from auth import ResolveUserWithHash, ResolveUserWithLogPass
+from models.book import Book, CreateBookFromRow, GetBookById
+from auth import ResolveUserWithId, ResolveUserWithHash, ResolveUserWithLogPass
 
 def Fail(code, message):
     return {'error': {
@@ -22,8 +26,8 @@ def Fail(code, message):
 @app.route('/request_user')
 def requestUserHandle():
     user = None
-    if request.cookies.get('auth', None):
-        user = ResolveUserWithHash(request.cookies['auth'])
+    if request.headers.get('Auth', None):
+        user = ResolveUserWithHash(request.headers['Auth'])
     elif request.args.get('hash', None):
         user = ResolveUserWithHash(request.args['hash'])
     elif request.args.get('login', None) and request.args.get('password', None):
@@ -32,29 +36,76 @@ def requestUserHandle():
         return json.dumps(Fail('user_not_found', 'No such user'))
     else:
         response = make_response(user.Dump())
-        response.set_cookie('auth', str(user.hash))
+        response.set_cookie('Auth', str(user.hash))
         return response
 
-@app.route('/avatar')
-def getAvatarHandle():
-    id = request.args['id']
-    return redirect('/static/avatar/' + id + '.jpg')
+def getUserByHeaders(headers, cookies):
+	auth = headers.get('Auth', None)
+	if not auth:
+		auth = cookies.get('auth', None)
+	if not auth:
+		return None
+	user = ResolveUserWithHash(auth)
+	return user
 
 @app.route('/cards')
 def cardsHandle():
-	auth = request.cookies.get('auth', None)
-	if not auth:
-		return json.dumps(Fail("unauthorized", "User is not authorized"))
-	user = ResolveUserWithHash(auth)
-	cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner != {user.id}")
-	res = {'cards': []}
-	for row in cursor:
-		print(row)
-		card = {}
-		card['owner'] = CreateUserFromRow(row).Serialize()
-		card['book'] = CreateBookFromRow(row).Serialize()
-		res['cards'].append(card)
-	return json.dumps(res)
+	user = getUserByHeaders(request.headers, request.cookies)
+	if not user:
+		return json.dumps(Fail('unautorized', 'User is not authorized'))
+	db.cursor.execute(f"SELECT * FROM books JOIN users on books.owner_id = users.id WHERE owner_id != {user.uid}")
+	res = {'books': []}
+	for row in db.cursor:
+		res['books'].append(CreateBookFromRow(row, False).Serialize())
+	random.shuffle(res['books'])
+	return json.dumps(res, ensure_ascii=False)
+
+@app.route('/my_books')
+def myBooksHandle():
+	user = getUserByHeaders(request.headers, request.cookies)
+	if not user:
+		return json.dumps(Fail('unautorized', 'User is not authorized'))
+	db.cursor.execute(f"SELECT * FROM books WHERE owner_id = {user.uid}")
+	res = {}
+	res['me'] = user.Serialize()
+	res['books'] = []
+	for row in db.cursor:
+		res['books'].append(CreateBookFromRow(row, False).Serialize())
+	return json.dumps(res, ensure_ascii=False)
+
+@app.route('/matches')
+def matchesHandle():
+	user = getUserByHeaders(request.headers, request.cookies)
+	if not user:
+		return json.dumps(Fail('unautorized', 'User is not authorized'))
+	db.cursor.execute(f"SELECT * FROM likes WHERE B = {user.uid}")
+	peopleLikedMe = db.cursor.fetchall()
+	db.cursor.execute(f"SELECT * FROM likes WHERE A = {user.uid}")
+	peopleILiked = db.cursor.fetchall()
+	iLiked = set()
+	for row in peopleILiked:
+		iLiked.add(row['B'])
+	res = {'matches': []}
+	for id in iLiked:
+		match = {'user': ResolveUserWithId(id).Serialize(), 'books': {'iLiked': [], 'matchLiked': []}}
+		booksMatchLiked = set()
+		commonPeople = set()
+		for row in peopleLikedMe:
+			if row['A'] == id and row['B'] == user.uid:
+				commonPeople.add(id)
+				book = GetBookById(row['book'])
+				book.owner = 0
+				booksMatchLiked.add(book)
+		match['books']['matchLiked'] = [book.Serialize() for book in booksMatchLiked]
+		booksILiked = set()
+		for row in peopleILiked:
+			if id in commonPeople and row['A'] == user.uid and row['B'] == id:
+				book = GetBookById(row['book'])
+				book.owner = 0
+				booksILiked.add(book)
+		match['books']['iLiked'] = [book.Serialize() for book in booksILiked]
+		res['matches'].append(match)
+	return json.dumps(res, ensure_ascii=False)
 
 @app.route('/')
 def hello_world():
