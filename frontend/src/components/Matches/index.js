@@ -21,7 +21,7 @@ export default class Matches extends React.Component {
   }
   render() {
     return (
-      <div style={{ height: '100vh', overflow: 'scroll' }}>
+      <div className="matches__overlay">
         {this.state.matches.map((res, i) => {
           console.log(res)
           return (

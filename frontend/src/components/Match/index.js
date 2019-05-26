@@ -42,9 +42,9 @@ export default class Match extends React.Component {
               </tr>
             </tbody>
           </table>
-          <div className="tgButton">
+          <button className="tgButton">
             Написать <i className="fab fa-telegram" aria-hidden="true" />
-          </div>
+          </button>
         </div>
       </div>
     )
