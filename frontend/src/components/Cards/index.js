@@ -59,7 +59,10 @@ export default class Cards extends React.Component {
   }
 
   show = () => {
-    this.setState({ show: true })
+    if (this.state.currentCards.length) this.setState({ show: true })
+    else {
+      setTimeout(this.show.bind(this), 2500)
+    }
   }
 
   componentDidMount() {
@@ -235,7 +238,7 @@ export default class Cards extends React.Component {
                   matchUser={this.state.res.user}
                   show={this.state.showMatch}
                 />
-                <div className="matchTitle">It'a match</div>
+                <div className="matchTitle">It's a match</div>
               </div>
             )}
           </div>
