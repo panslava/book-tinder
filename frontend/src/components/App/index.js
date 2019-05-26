@@ -28,6 +28,10 @@ export default class App extends React.Component {
     this.setState({
       matches: !this.state.matches
     })
+
+    document.querySelector('.header').style.position = this.state.matches
+      ? 'fixed'
+      : 'relative'
   }
 
   render() {
@@ -44,7 +48,12 @@ export default class App extends React.Component {
 
     return (
       <div className="main">
-        {this.state.authorized && <Header handlerType={this.handlerType} />}
+        {this.state.authorized && (
+          <Header
+            style={{ position: this.state.matches ? 'relative' : 'fixed' }}
+            handlerType={this.handlerType}
+          />
+        )}
         {body}
       </div>
     )
