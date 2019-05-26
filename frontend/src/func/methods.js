@@ -4,7 +4,9 @@ import { getCards } from './api'
 
 export async function getAllCards(that, params = { considerGender: 'no' }) {
   let res = await getCards(params)
+  console.log(res)
   let allCards = res.data.books
+  console.log(allCards)
   allCards = allCards.map(el => {
     let obj = {
       ...el,

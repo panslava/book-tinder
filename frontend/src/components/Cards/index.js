@@ -4,6 +4,7 @@ import './style.css'
 import { getAllCards } from '../../func/methods'
 import { like } from '../../func/api'
 import Card from '../Card'
+import Match from '../Match'
 
 function Spinner(props) {
   if (props.show) {
@@ -50,12 +51,14 @@ export default class Cards extends React.Component {
     this.state = {
       currentCards: [],
       allCards: [],
-      show: false
+      show: false,
+      showMatch: false,
+      res: {}
     }
     setTimeout(this.show.bind(this), 2500)
   }
 
-  show() {
+  show = () => {
     this.setState({ show: true })
   }
 
@@ -65,10 +68,52 @@ export default class Cards extends React.Component {
     tinderContainer.classList.add('loaded')
   }
 
-  async removeTopCard(isLike, db_id) {
+  removeTopCard = async (isLike, db_id) => {
+    if (this.state.showMatch) return
     if (isLike) {
       let res = await like({ book: db_id })
-      console.log(res)
+      console.log(res.data)
+      if ('match' in res.data) {
+        this.setState({ res: res.data.match, showMatch: true })
+      }
+      // this.setState({
+      //   res: {
+      //     user: {
+      //       uid: 3,
+      //       nickname: 'savva',
+      //       displayName: 'Савва Антонюк',
+      //       gender: 'male',
+      //       birthday: '1995-08-24',
+      //       avatar: '/static/avatars/savva.jpeg',
+      //       age: 23,
+      //       hash: 'djhg8298gidkgjj93jfd',
+      //       tg: 'SavvaAnto'
+      //     },
+      //     books: {
+      //       iLiked: [
+      //         {
+      //           id: 15,
+      //           title: 'Труженики моря',
+      //           author: 'Виктор Гюго',
+      //           description:
+      //             'роман Виктора Гюго, написан во время изгнания поэта на острове Гернси, опубликован в 1866 году. В произведении описывается подвиг рыбака, ценой неимоверных лишений победившего в борьбе с силами природы, но отказавшегося от вознаграждения за эту победу ради любви.',
+      //           pic: '/static/books/sea.jpeg'
+      //         }
+      //       ],
+      //       matchLiked: [
+      //         {
+      //           id: 7,
+      //           title: 'Гарри Поттер и методы рационального мышления',
+      //           author: 'Элиезер Юдковский',
+      //           description:
+      //             'Петуния вышла замуж не за Дурсля, а за университетского профессора, и Гарри попал в гораздо более благоприятную среду. У него были частные учителя, дискуссии с отцом, а главное — книги, сотни и тысячи научных и фантастических книг. В 11 лет Гарри знаком с квантовой механикой, когнитивной психологией, теорией вероятностей и другими вещами. Но Гарри не просто вундеркинд, у него есть загадочная Тёмная сторона, которая явно накладывает свой отпечаток на его мышление.',
+      //           pic: '/static/books/harry.jpeg'
+      //         }
+      //       ]
+      //     }
+      //   },
+      //   showMatch: true
+      // })
     }
     let currentCards = this.state.currentCards
     let allCards = this.state.allCards
@@ -86,7 +131,12 @@ export default class Cards extends React.Component {
     // console.log(this.state.currentCards)
   }
 
+  closeMatch = () => {
+    this.setState({ res: {}, showMatch: false })
+  }
+
   handleLoveButtonClick(event) {
+    if (this.state.showMatch) return
     let love = true
     let cards = document.querySelectorAll('.tinder--card:not(.removed)')
     let moveOutWidth = document.body.clientWidth * 1.5
@@ -103,12 +153,14 @@ export default class Cards extends React.Component {
         'translate(-' + moveOutWidth + 'px, -100px) rotate(30deg)'
     }
 
-    this.removeTopCard()
+    this.removeTopCard(true)
 
     event.preventDefault()
   }
 
   handleNopeButtonClick(event) {
+    if (this.state.showMatch) return
+
     let love = false
     let cards = document.querySelectorAll('.tinder--card:not(.removed)')
     let moveOutWidth = document.body.clientWidth * 1.5
@@ -166,6 +218,26 @@ export default class Cards extends React.Component {
               )
             })}
             <Spinner show={this.state.show} />
+            {this.state.show && this.state.res && this.state.res.books && (
+              <div style={{ maxWidth: '400px', opacity: '0.95', zIndex: 5000 }}>
+                <div
+                  style={{
+                    marginBottom: '-60px',
+                    marginLeft: '35px'
+                  }}
+                  onClick={this.closeMatch}
+                >
+                  <i className="fas fa-times closeMatch" />
+                </div>
+                <Match
+                  iLiked={this.state.res.books.iLiked}
+                  matchLiked={this.state.res.books.matchLiked}
+                  matchUser={this.state.res.user}
+                  show={this.state.showMatch}
+                />
+                <div className="matchTitle">It'a match</div>
+              </div>
+            )}
           </div>
 
           <div className="tinder--buttons">

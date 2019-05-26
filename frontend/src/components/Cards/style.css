@@ -185,3 +185,19 @@ body {
 .fa {
   cursor: pointer;
 }
+
+.closeMatch {
+  top: 5%;
+  left: 5%;
+  font-size: 3rem;
+  color: rgb(200, 0, 0, 0.8);
+}
+
+.matchTitle {
+  position: absolute;
+  font-size: 5rem;
+  color: rgba(209, 44, 154, 0.726);
+  transform: rotate(-30deg) translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+}

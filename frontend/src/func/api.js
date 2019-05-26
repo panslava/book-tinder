@@ -4,20 +4,23 @@ import Cookies from 'universal-cookie'
 
 const cookies = new Cookies()
 
-export async function setAuthHeader() {
+export async function setAuthHeader(params) {
   let res = await axios.get(server.link + 'request_user', {
-    params: { login: 'admarkov', password: 'password' }
+    params: params || { login: 'panslava', password: 'password' }
   })
-  await cookies.set('auth', res.data.hash, { path: '/' })
+  console.log(res)
+  await cookies.set('Auth', res.data.hash, { path: '/' })
   await cookies.set('user', res.data, { path: '/' })
+  console.log(cookies)
 }
 
 export async function getCards(params) {
-  let auth = await cookies.get('auth')
+  let auth = await cookies.get('Auth')
   if (!auth) {
     await setAuthHeader()
-    auth = await cookies.get('auth')
+    auth = await cookies.get('Auth')
   }
+  console.log(auth)
   return axios.get(server.link + 'cards', {
     params: params,
     headers: {
@@ -27,11 +30,13 @@ export async function getCards(params) {
 }
 
 export async function like(params) {
-  let auth = await cookies.get('auth')
+  let auth = await cookies.get('Auth')
   if (!auth) {
     await setAuthHeader()
-    auth = await cookies.get('auth')
+    auth = await cookies.get('Auth')
   }
+  console.log(auth)
+
   return axios.get(server.link + 'like', {
     params: params,
     headers: {
@@ -46,18 +51,25 @@ export async function getUser() {
     await setAuthHeader()
     user = await cookies.get('user')
   }
+
   return user
 }
 
 export async function getMatches() {
-  let auth = await cookies.get('auth')
+  let auth = await cookies.get('Auth')
   if (!auth) {
     await setAuthHeader()
-    auth = await cookies.get('auth')
+    auth = await cookies.get('Auth')
   }
+  console.log(auth)
+
   return axios.get(server.link + 'matches', {
     headers: {
       Auth: auth
     }
   })
+}
+
+export async function isAuthorized() {
+  return await !!cookies.get('Auth')
 }
