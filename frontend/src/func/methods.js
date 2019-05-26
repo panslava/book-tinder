@@ -20,5 +20,6 @@ export async function getAllCards(that, params = { considerGender: 'no' }) {
   })
   let currentCards = allCards.slice(0, 15)
   allCards = allCards.slice(15, allCards.length)
+  // console.log(currentCards)
   that.setState({ allCards: allCards, currentCards: currentCards })
 }

@@ -52,9 +52,10 @@ input:checked + .slider {
   position: fixed;
   top: 0;
   left: 0;
-  /* background-color: #fff; */
+  background-color: rgba(255, 215, 191, 0.9);
+  box-shadow: 0 0 5px 0px rgb(179, 179, 179);
   /* opacity: 0; */
-  background: rgba(255, 255, 255, 0);
+  /* background: rgba(255, 255, 255, 0); */
   width: 100%;
   z-index: 99;
   padding: 25px 0 25px 0;

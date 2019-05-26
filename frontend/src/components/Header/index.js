@@ -15,7 +15,6 @@ export default class Header extends React.Component {
   async componentDidMount() {
     let user = await getUser()
     this.setState({ user: user })
-    console.log(this.state.user)
     // console.log(this.state.user.avatar)
   }
   render() {
