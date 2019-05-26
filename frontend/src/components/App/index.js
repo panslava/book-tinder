@@ -2,24 +2,31 @@ import React from 'react'
 
 import './style.css'
 import Header from '../Header'
-// import Search from '../Search'
+import Matches from '../Matches'
 import Cards from '../Cards'
 
 export default class App extends React.Component {
   state = {
-    maps: false,
-    search: '',
-    markers: '',
-    timeline: false
+    matches: false,
+    markers: ''
+  }
+
+  handlerType = () => {
+    this.setState({
+      matches: !this.state.matches
+    })
   }
 
   render() {
-    const body = <Cards />
+    const body = (this.state.matches && (
+      <React.Fragment>
+        <Matches />
+      </React.Fragment>
+    )) || <Cards />
 
     return (
       <div className="main">
-        {this.state.markers}
-        <Header handlerType={this.handlerType} handlerTime={this.handlerTime} />
+        <Header handlerType={this.handlerType} />
         {body}
       </div>
     )

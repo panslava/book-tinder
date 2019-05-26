@@ -95,10 +95,19 @@ input:checked + .slider:before {
 }
 */
 
-.fa-calendar-week {
+.user {
   color: #000 !important;
   font-size: 2rem !important;
   cursor: pointer;
+  margin-left: 3rem;
+}
+
+.user__img {
+  height: 4rem;
+  width: 4rem;
+  border-radius: 50%;
+  vertical-align: middle;
+  object-fit: cover;
 }
 
 @media all and (max-width: 500px) {

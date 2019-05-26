@@ -1,8 +1,15 @@
 import React from 'react'
 import Hammer from 'react-hammerjs'
+import posed from 'react-pose'
 
 import { server } from '../../params'
 import './style.css'
+
+const Box = posed.div({
+  hidden: { opacity: 0.001 },
+  visible: { opacity: 1 },
+  transition: { duration: 700 }
+})
 
 export default class Card extends React.Component {
   constructor(props) {
@@ -11,8 +18,15 @@ export default class Card extends React.Component {
     this.handlePan = this.handlePan.bind(this)
     this.handlePanEnd = this.handlePanEnd.bind(this)
     this.state = {
-      id: this.props.id
+      id: this.props.id,
+      isVisible: false
     }
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({ isVisible: true })
+    }, 2000)
   }
 
   handlePan(event) {
@@ -60,9 +74,10 @@ export default class Card extends React.Component {
       let xMulti = event.deltaX * 0.03
       let yMulti = event.deltaY / 80
       let rotate = xMulti * yMulti
-
-      // console.log('bbb')
-      // console.log(event.target)
+      let isLike = false
+      if (toX > 0) {
+        isLike = true
+      }
       event.target.style.transform =
         'translate(' +
         toX +
@@ -72,16 +87,17 @@ export default class Card extends React.Component {
         rotate +
         'deg)'
 
-      this.props.removeTopCard()
+      this.props.removeTopCard(isLike, this.props.db_id)
     }
   }
   render() {
     return (
       <Hammer onPan={this.handlePan} onPanEnd={this.handlePanEnd}>
-        <div
+        <Box
           id={this.props.id}
           style={this.props.style}
           className="tinder--card"
+          pose={this.state.isVisible ? 'visible' : 'hidden'}
         >
           <img src={server.host + this.props.pic} alt="Book" />
           <h3>{this.props.title}</h3>
@@ -97,7 +113,7 @@ export default class Card extends React.Component {
               {this.props.description}
             </div>
           </div>
-        </div>
+        </Box>
       </Hammer>
     )
   }

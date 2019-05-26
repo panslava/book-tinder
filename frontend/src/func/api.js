@@ -6,19 +6,45 @@ const cookies = new Cookies()
 
 export async function setAuthHeader() {
   let res = await axios.get(server.link + 'request_user', {
-    params: { login: 'ruth', password: 'password' }
+    params: { login: 'alice', password: 'password' }
   })
-  cookies.set('auth', res.data.hash, { path: '/' })
+  await cookies.set('auth', res.data.hash, { path: '/' })
+  await cookies.set('user', res.data, { path: '/' })
 }
 
 export async function getCards(params) {
-  if (!cookies.get('auth')) {
+  let auth = await cookies.get('auth')
+  if (!auth) {
     await setAuthHeader()
+    auth = await cookies.get('auth')
   }
   return axios.get(server.link + 'cards', {
     params: params,
     headers: {
-      Auth: cookies.get('auth')
+      Auth: auth
     }
   })
+}
+
+export async function like(params) {
+  let auth = await cookies.get('auth')
+  if (!auth) {
+    await setAuthHeader()
+    auth = await cookies.get('auth')
+  }
+  return axios.get(server.link + 'like', {
+    params: params,
+    headers: {
+      Auth: auth
+    }
+  })
+}
+
+export async function getUser() {
+  let user = await cookies.get('user')
+  if (!user) {
+    await setAuthHeader()
+    user = await cookies.get('user')
+  }
+  return user
 }
