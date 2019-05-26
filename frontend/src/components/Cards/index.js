@@ -1,19 +1,84 @@
 import React from 'react'
 
 import './style.css'
-import { getCard } from '../../func/methods'
+import { getAllCards } from '../../func/methods'
 import Card from '../Card'
 
 export default class Cards extends React.Component {
-  state = {
-    cards: []
+  constructor(props) {
+    super(props)
+    this.state = {
+      currentCards: [],
+      allCards: []
+    }
   }
 
-  // componentWillMount() {
-  // }
+  componentDidMount() {
+    let tinderContainer = document.querySelector('.tinder')
+    getAllCards(this)
+    tinderContainer.classList.add('loaded')
+  }
 
-  async componentDidMount() {
-    getCard(this)
+  removeTopCard() {
+    console.log(2)
+    let currentCards = this.state.currentCards
+    let allCards = this.state.allCards
+
+    currentCards.shift()
+    if (allCards && allCards.length) {
+      currentCards.push(allCards[0])
+      allCards.shift()
+    }
+    // console.log(currentCards)
+    this.setState({
+      currentCards: currentCards,
+      allCards: allCards
+    })
+    // console.log(this.state.currentCards)
+  }
+
+  handleLoveButtonClick(event) {
+    let love = true
+    let cards = document.querySelectorAll('.tinder--card:not(.removed)')
+    let moveOutWidth = document.body.clientWidth * 1.5
+
+    if (!cards.length) return false
+
+    let card = cards[0]
+
+    if (love) {
+      card.style.transform =
+        'translate(' + moveOutWidth + 'px, -100px) rotate(-30deg)'
+    } else {
+      card.style.transform =
+        'translate(-' + moveOutWidth + 'px, -100px) rotate(30deg)'
+    }
+
+    this.removeTopCard()
+
+    event.preventDefault()
+  }
+
+  handleNopeButtonClick(event) {
+    let love = false
+    let cards = document.querySelectorAll('.tinder--card:not(.removed)')
+    let moveOutWidth = document.body.clientWidth * 1.5
+
+    if (!cards.length) return false
+
+    let card = cards[0]
+
+    if (love) {
+      card.style.transform =
+        'translate(' + moveOutWidth + 'px, -100px) rotate(-30deg)'
+    } else {
+      card.style.transform =
+        'translate(-' + moveOutWidth + 'px, -100px) rotate(30deg)'
+    }
+
+    this.removeTopCard()
+
+    event.preventDefault()
   }
 
   render() {
@@ -27,24 +92,36 @@ export default class Cards extends React.Component {
           </div>
 
           <div className="tinder--cards">
-            {this.state.cards.map((res, i) => {
+            {this.state.currentCards.map((res, i) => {
               return (
                 <Card
+                  id={res.random_id}
+                  removeTopCard={this.removeTopCard.bind(this)}
                   title={res.title}
                   author={res.author}
                   description={res.description}
                   pic={res.pic}
-                  key={i}
+                  key={res.random_id}
+                  style={{
+                    zIndex: this.state.allCards.length - i,
+                    transform:
+                      'scale(' +
+                      (20 - i) / 20 +
+                      ') translateY(-' +
+                      30 * i +
+                      'px)',
+                    opacity: (10 - i) / 10
+                  }}
                 />
               )
             })}
           </div>
 
           <div className="tinder--buttons">
-            <button id="nope">
+            <button onClick={this.handleNopeButtonClick.bind(this)} id="nope">
               <i className="fa fa-remove" />
             </button>
-            <button id="love">
+            <button onClick={this.handleLoveButtonClick.bind(this)} id="love">
               <i className="fa fa-check" />
             </button>
           </div>
