@@ -6,7 +6,10 @@ const cookies = new Cookies()
 
 export async function setAuthHeader(params) {
   let res = await axios.get(server.link + 'request_user', {
-    params: params || { login: 'panslava', password: 'password' }
+    params: params || {
+      login: `login${Math.floor(Math.random() * 48 + 1)}`,
+      password: 'password'
+    }
   })
   console.log(res)
   await cookies.set('Auth', res.data.hash, { path: '/' })
@@ -36,7 +39,7 @@ export async function like(params) {
     auth = await cookies.get('Auth')
   }
   console.log(auth)
-
+  console.log(params)
   return axios.get(server.link + 'like', {
     params: params,
     headers: {

@@ -156,7 +156,7 @@ export default class Cards extends React.Component {
         'translate(-' + moveOutWidth + 'px, -100px) rotate(30deg)'
     }
 
-    this.removeTopCard(true)
+    this.removeTopCard(true, this.state.currentCards[0].id)
 
     event.preventDefault()
   }
